@@ -2,6 +2,7 @@ var gulp = require('gulp');
 var jshint = require('gulp-jshint');
 var plumber = require('gulp-plumber');
 var mocha = require('gulp-mocha');
+var webpack = require('gulp-webpack');
 
 gulp.task('lint', function() {
   return gulp.src('./lib/*.js')
@@ -33,4 +34,21 @@ gulp.task('test', ['lint'], function() {
     })
 });
 
-gulp.task('default', ['test']);
+gulp.task('copy', function() {
+  return gulp.src(['./app/**/*.html', './app/**/*.css'])
+    .pipe(gulp.dest('./build'));
+});
+
+gulp.task('build', ['copy'], function() {
+  return gulp.src('./app/js/client.js')
+    .pipe(webpack({
+      output: { filename: 'bundle.js' }
+    }))
+    .pipe(gulp.dest('./build/'));
+});
+
+gulp.task('watch', function() {
+  gulp.watch('./app/**/*', ['build']);
+});
+
+gulp.task('default', ['build', 'watch']);
